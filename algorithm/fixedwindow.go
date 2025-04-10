@@ -13,7 +13,13 @@ type FixedWindow struct {
 func(fixedWindow *FixedWindow) IsRequestAllowed() bool {
 	now := time.Now().UnixMilli();
 	fmt.Println(fmt.Sprintf("The current time %d and difference %d", now, now-fixedWindow.StartTimestamp));
-	if now-fixedWindow.StartTimestamp<=fixedWindow.Duration && fixedWindow.CurrentCount < fixedWindow.MaxCount{
+	timeDifference := now-fixedWindow.StartTimestamp;
+	if timeDifference > fixedWindow.Duration {
+		fixedWindow.StartTimestamp = now
+		fixedWindow.CurrentCount = 0
+		fmt.Println("Window reset. New start timestamp:", fixedWindow.StartTimestamp)
+	}
+	if fixedWindow.CurrentCount < fixedWindow.MaxCount{
 		fixedWindow.CurrentCount++;
 		return true;
 	}
