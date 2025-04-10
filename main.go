@@ -4,7 +4,7 @@ import "fmt"
 import "time"
 import "github.com/GowrisankarK/go-rate-limiter/algorithm"
 
-func ValidateFixedWindowRateLimiter() {
+func validateFixedWindowRateLimiter() {
 	fixedWindow:=algorithm.InitialiseFixedWindow();
 	fmt.Println(fmt.Sprintf("The fixedWindow is initialised for %d request count per %d seconds and start time %d", 
 	fixedWindow.MaxCount, fixedWindow.Duration/1000, fixedWindow.StartTimestamp));
@@ -18,6 +18,23 @@ func ValidateFixedWindowRateLimiter() {
 	}
 }
 
+func validateSlidingWindowRateLimiter() {
+	silidingWindow:=algorithm.InitialiseSlidingWindow();
+	fmt.Println(fmt.Sprintf("The silidingWindow is initialised for %d request count per %d seconds", 
+	silidingWindow.MaxCount, silidingWindow.Duration/1000));
+	for i:=1;i<=5;i++ {
+		if silidingWindow.IsRequestAllowed() {
+			fmt.Println(fmt.Sprintf("The Request %d is allowed", i));
+		} else {
+			fmt.Println(fmt.Sprintf("The Request %d is not allowed", i));
+		}
+		if(i<5) {
+		time.Sleep(5 * time.Second);
+		}
+	}
+}
+
 func main() {
-	ValidateFixedWindowRateLimiter();
+	// validateFixedWindowRateLimiter();
+	validateSlidingWindowRateLimiter();
 }

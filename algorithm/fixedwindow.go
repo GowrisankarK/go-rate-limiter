@@ -8,7 +8,6 @@ type FixedWindow struct {
 	Duration int64
 	StartTimestamp int64
 	CurrentCount int32
-
 }
 
 func(fixedWindow *FixedWindow) IsRequestAllowed() bool {
