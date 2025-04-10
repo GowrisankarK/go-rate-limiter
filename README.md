@@ -13,13 +13,13 @@
     Easy to implement
 
     # Disadvantages:
-    If n requests come in the last second of the current window period and the same n requests come in the first second of the next window period, then there is a chance of a burst.
+    If n requests come in the last second of the current window period and the same n requests come in the first second of the next window period, then there is a chance of a burst.(i.e., Spikes at bounderies)
 
 # SlidingWindow Or RollingWindow:
      In Sliding Window alogrithm, we track the last n duration requests based on which we allow the requests.
 
     # Advantages:
-      Edge case's like n request is always covered.
+      Spikes at bounderies won't occurr.
     
     # Disadvantages:
       More Complex than the FixedWindow Algorithm. The reasons are tracking the last n requests count by storing them in memory & cleaning up the older requests.
