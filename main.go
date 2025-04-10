@@ -34,7 +34,7 @@ func validateSlidingWindowRateLimiter() {
 
 func validateTokenBucketRateLimiter() {
 	tokenBucket:=algorithm.InitialiseTokenBucket();
-	fmt.Println(fmt.Sprintf("The tokenBucker is initialised for %d request count per %d seconds", 
+	fmt.Println(fmt.Sprintf("The tokenBucket is initialised for %d request count per %d seconds", 
 	tokenBucket.ReFillTokenCount, tokenBucket.RefillRate/1000));
 	for i:=1;i<=5;i++ {
 		if tokenBucket.IsRequestAllowed() {
@@ -46,8 +46,22 @@ func validateTokenBucketRateLimiter() {
 	}
 }
 
+func validateLeakyBucketRateLimiter() {
+	leakyBucket:=algorithm.InitialiseLeakyBucket();
+	fmt.Println(fmt.Sprintf("The leakyBucket is initialised to process request per %d seconds with max request queue size of %d", 
+	leakyBucket.OutFillRate/1000, leakyBucket.MaxTokenCount));
+	for i:=1;i<=5;i++ {
+		if leakyBucket.IsRequestAllowed(int32(i)) {
+			fmt.Println(fmt.Sprintf("The Request %d is allowed", i));
+		} else {
+			fmt.Println(fmt.Sprintf("The Request %d is not allowed", i));
+		}
+		time.Sleep(time.Duration(i) * time.Second);
+	}
+}
 func main() {
 	// validateFixedWindowRateLimiter();
 	// validateSlidingWindowRateLimiter();
-	validateTokenBucketRateLimiter();
+	// validateTokenBucketRateLimiter();
+	validateLeakyBucketRateLimiter();
 }
