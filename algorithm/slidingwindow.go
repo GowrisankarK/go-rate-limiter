@@ -7,10 +7,10 @@ type SlidingWindow struct {
 	MaxCount int32
 	Duration int64
 	LastRequestTimestamp int64
-	RequestHistory []int64
+	RequestHistory []int64 // milliseconds
 }
 
-func(slidingWindow *SlidingWindow) cleanUpRequestHistory(timeStamp int64) {
+func(slidingWindow *SlidingWindow) cleanupOldRequests(timeStamp int64) {
 	fmt.Println("Clean up started");
 	for index,data:= range(slidingWindow.RequestHistory) {
 		if(data>=timeStamp) {
@@ -33,15 +33,17 @@ func(slidingWindow *SlidingWindow) IsRequestAllowed() bool {
 		return true;
 	}
 	timeFrame:=now-slidingWindow.Duration;
-	defer slidingWindow.cleanUpRequestHistory(timeFrame);
+	defer slidingWindow.cleanupOldRequests(timeFrame);
 	var reqCount int32 = 0;
 	fmt.Println(fmt.Sprintf("The last %d duration window start from %d", slidingWindow.Duration, timeFrame));
-	for _,data:= range(slidingWindow.RequestHistory) {
+	for i := len(slidingWindow.RequestHistory) - 1; i >= 0; i-- {
+		data := slidingWindow.RequestHistory[i]
 		if data >= timeFrame {
 			fmt.Println(fmt.Sprintf("The last request time %d in the %d timeFrame", data, timeFrame));
 			reqCount++;
 		}
 		if reqCount>=slidingWindow.MaxCount {
+			fmt.Println(fmt.Sprintf("The request count %d in last %d seconds", reqCount, slidingWindow.Duration/1000));
 			return false;
 		}
 	}
@@ -54,6 +56,6 @@ func(slidingWindow *SlidingWindow) IsRequestAllowed() bool {
 }
 
 func InitialiseSlidingWindow() SlidingWindow {
-	slidingWindow := SlidingWindow{MaxCount: 100, Duration: 10000, LastRequestTimestamp: 0, RequestHistory: []int64{}};
+	slidingWindow := SlidingWindow{MaxCount: 2, Duration: 10000, LastRequestTimestamp: 0, RequestHistory: []int64{}};
 	return slidingWindow;
 }

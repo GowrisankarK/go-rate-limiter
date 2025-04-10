@@ -28,9 +28,7 @@ func validateSlidingWindowRateLimiter() {
 		} else {
 			fmt.Println(fmt.Sprintf("The Request %d is not allowed", i));
 		}
-		if(i<5) {
-		time.Sleep(5 * time.Second);
-		}
+		time.Sleep(time.Duration(i) * time.Second);
 	}
 }
 
