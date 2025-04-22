@@ -18,12 +18,26 @@ func validateFixedWindowRateLimiter() {
 	}
 }
 
-func validateSlidingWindowRateLimiter() {
-	silidingWindow:=algorithm.InitialiseSlidingWindow();
+func validateSlidingWindowLogRateLimiter() {
+	silidingWindowLog:=algorithm.InitialiseSlidingWindow();
 	fmt.Println(fmt.Sprintf("The silidingWindow is initialised for %d request count per %d seconds", 
-	silidingWindow.MaxCount, silidingWindow.Duration/1000));
+	silidingWindowLog.MaxCount, silidingWindowLog.Duration/1000));
 	for i:=1;i<=5;i++ {
-		if silidingWindow.IsRequestAllowed() {
+		if silidingWindowLog.IsRequestAllowed() {
+			fmt.Println(fmt.Sprintf("The Request %d is allowed", i));
+		} else {
+			fmt.Println(fmt.Sprintf("The Request %d is not allowed", i));
+		}
+		time.Sleep(time.Duration(i) * time.Second);
+	}
+}
+
+func validateSlidingWindowCounterRateLimiter() {
+	silidingWindowCounter:=algorithm.InitialiseSlidingWindowCounter();
+	fmt.Println(fmt.Sprintf("The silidingWindow is initialised for %d request count per %d seconds", 
+	silidingWindowCounter.MaxCount, silidingWindowCounter.Duration/1000));
+	for i:=1;i<=5;i++ {
+		if silidingWindowCounter.IsRequestAllowed() {
 			fmt.Println(fmt.Sprintf("The Request %d is allowed", i));
 		} else {
 			fmt.Println(fmt.Sprintf("The Request %d is not allowed", i));
@@ -61,7 +75,8 @@ func validateLeakyBucketRateLimiter() {
 }
 func main() {
 	// validateFixedWindowRateLimiter();
-	// validateSlidingWindowRateLimiter();
+	validateSlidingWindowLogRateLimiter();
+	// validateSlidingWindowCounterRateLimiter();
 	// validateTokenBucketRateLimiter();
-	validateLeakyBucketRateLimiter();
+	// validateLeakyBucketRateLimiter();
 }
