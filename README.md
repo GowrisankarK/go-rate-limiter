@@ -1,47 +1,90 @@
 # go-rate-limiter
- Rate Limiter developed using Go for Traffic to the Application.
 
- # Algorithms:
- 
- # FixedWindow:
- 
-    In Fixed Window alogrithm, on the timeframe we allow specific count of requests.
+A Rate Limiter developed in Go to control traffic to the application.
 
-    n request in n time period.
+## Algorithms
 
-    # Advantages:
-    Easy to implement
+### Fixed Window
 
-    # Disadvantages:
-    If n requests come in the last second of the current window period and the same n requests come in the first second of the next window period, then there is a chance of a burst.(i.e., Spikes at bounderies)
+In the **Fixed Window** algorithm, within a fixed time frame, we allow a specific number of requests.
 
-# SlidingWindow Or RollingWindow:
-    In Sliding Window alogrithm, we track the last n duration requests based on which we allow the requests.
+**Example:**  
+Allow `n` requests every `n` milliseconds.
 
-    # Advantages:
-      Spikes at bounderies won't occurr.
-    
-    # Disadvantages:
-      More Complex than the FixedWindow Algorithm. The reasons are tracking the last n requests count by storing them in memory & cleaning up the older requests.
+#### Advantages
+- Easy to implement.
 
+#### Disadvantages
+- If `n` requests come at the **end** of the current window and another `n` requests at the **start** of the next window, it can cause a **burst** (i.e., spikes at boundaries).
 
-# TokenBucket:
-    In Token Bucket alogrithm, we refill the tokens count in bucket on specific period. If the token is available in a bucket, the request is allowed and token is reduced by one.
+---
 
-    # Advantages:
-      Spikes at bounderies won't occurr.
-      Can be adjusted to handle varying traffic patterns
-    
-    # Disadvantages:
-      More Complex than the FixedWindow Algorithm.
+### Sliding Window Log (Rolling Window Log)
 
-# LeakyBucket:
-    In Leaky Bucket alogrithm, we have a queue with max size to hold the request. on specific period, the request is consumed. If the queue is full, then request won't be accepted.
+In the **Sliding Window Log** algorithm, we track the timestamps of individual requests over the last `n` duration to decide if new requests should be allowed.
 
-    # Advantages:
-      Spikes at bounderies won't occurr.
-      Simple to understand and manage.
-    
-    # Disadvantages:
-      More Complex than the FixedWindow Algorithm.
-      Can lead to dropped requests if the incoming rate consistently exceeds the processing rate.
+#### Advantages
+- No spikes at boundaries.
+
+#### Disadvantages
+- More complex than the Fixed Window algorithm.
+- Higher **space complexity**, as it stores **each request's timestamp**.
+- Requires periodic cleanup of old request timestamps.
+
+---
+
+### Sliding Window Counter (Rolling Window Counter)
+
+The **Sliding Window Counter** is similar to the Sliding Window Log, but instead of storing every request's timestamp, we group requests by their timestamps (e.g., by second or millisecond) and count occurrences, using a key-value pair data structure.
+
+#### Advantages
+- Reduces space complexity compared to Sliding Window Log.
+- No spikes at boundaries.
+
+#### Disadvantages
+- Still more complex than the Fixed Window algorithm.
+- Requires logic to track counts and clean up old timestamps.
+
+---
+
+### Token Bucket
+
+In the **Token Bucket** algorithm, tokens are refilled into a bucket at a regular interval.  
+If a token is available when a request comes, the request is allowed and a token is consumed.
+
+#### Advantages
+- Prevents spikes at boundaries.
+- Can handle **bursty** traffic while maintaining an average rate over time.
+
+#### Disadvantages
+- More complex than the Fixed Window algorithm.
+- Needs careful implementation for token refill timing and accurate synchronization.
+
+---
+
+### Leaky Bucket
+
+In the **Leaky Bucket** algorithm, incoming requests are placed into a **fixed-size queue**.  
+Requests are processed at a fixed rate. If the queue is full, new requests are dropped.
+
+#### Advantages
+- Smooths traffic flow and prevents spikes at boundaries.
+- Simple to understand and manage.
+
+#### Disadvantages
+- More complex than the Fixed Window algorithm.
+- Requests can be dropped if the **incoming rate exceeds the processing rate** for a long time.
+
+---
+
+## Algorithms Comparison
+
+| Algorithm                  | Memory Usage             | Complexity Level          | Supports Bursts?  | Pros                                         | Cons                                            |
+|-----------------------------|---------------------------|----------------------------|-------------------|----------------------------------------------|-------------------------------------------------|
+| **Fixed Window**            | Very Low                  | Very Easy                  | ❌ No              | Easy to implement                            | Bursts at window boundaries                    |
+| **Sliding Window Log**      | High (stores timestamps)   | Moderate                   | ❌ No              | Smooth traffic, prevents boundary spikes    | High memory usage, cleanup needed              |
+| **Sliding Window Counter**  | Medium (buckets timestamps)| Moderate                   | ❌ No              | Smoother traffic with lower memory          | Approximation errors possible                  |
+| **Token Bucket**            | Low (token counter only)   | High                       | ✅ Yes             | Handles sudden bursts, adjustable traffic    | Complex refill logic, time sync needed          |
+| **Leaky Bucket**            | Low (queue based)          | Moderate                   | ❌ No              | Smooths traffic flow, simple to reason about | Drops requests if incoming rate too high       |
+
+---

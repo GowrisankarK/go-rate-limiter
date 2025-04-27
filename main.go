@@ -22,7 +22,7 @@ func validateSlidingWindowLogRateLimiter() {
 	silidingWindowLog:=algorithm.InitialiseSlidingWindow();
 	fmt.Println(fmt.Sprintf("The silidingWindow is initialised for %d request count per %d seconds", 
 	silidingWindowLog.MaxCount, silidingWindowLog.Duration/1000));
-	for i:=1;i<=5;i++ {
+	for i:=1;i<=20;i++ {
 		if silidingWindowLog.IsRequestAllowed() {
 			fmt.Println(fmt.Sprintf("The Request %d is allowed", i));
 		} else {
@@ -36,7 +36,7 @@ func validateSlidingWindowCounterRateLimiter() {
 	silidingWindowCounter:=algorithm.InitialiseSlidingWindowCounter();
 	fmt.Println(fmt.Sprintf("The silidingWindow is initialised for %d request count per %d seconds", 
 	silidingWindowCounter.MaxCount, silidingWindowCounter.Duration/1000));
-	for i:=1;i<=5;i++ {
+	for i:=1;i<=20;i++ {
 		if silidingWindowCounter.IsRequestAllowed() {
 			fmt.Println(fmt.Sprintf("The Request %d is allowed", i));
 		} else {
@@ -64,7 +64,7 @@ func validateLeakyBucketRateLimiter() {
 	leakyBucket:=algorithm.InitialiseLeakyBucket();
 	fmt.Println(fmt.Sprintf("The leakyBucket is initialised to process request per %d seconds with max request queue size of %d", 
 	leakyBucket.OutFillRate/1000, leakyBucket.MaxTokenCount));
-	for i:=1;i<=5;i++ {
+	for i:=1;i<=10;i++ {
 		if leakyBucket.IsRequestAllowed(int32(i)) {
 			fmt.Println(fmt.Sprintf("The Request %d is allowed", i));
 		} else {
@@ -75,8 +75,8 @@ func validateLeakyBucketRateLimiter() {
 }
 func main() {
 	// validateFixedWindowRateLimiter();
-	validateSlidingWindowLogRateLimiter();
-	// validateSlidingWindowCounterRateLimiter();
+	// validateSlidingWindowLogRateLimiter();
+	validateSlidingWindowCounterRateLimiter();
 	// validateTokenBucketRateLimiter();
 	// validateLeakyBucketRateLimiter();
 }
