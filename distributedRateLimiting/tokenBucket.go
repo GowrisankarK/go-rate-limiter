@@ -36,7 +36,6 @@ func (tb *RedisTokenBucket) refillTokens(tokenCount int, lastRefill int64, now i
 	return tokenCount, lastRefill
 }
 
-
 func (tb *RedisTokenBucket) IsRequestAllowed(clientID string) (bool, error) {
 	keyTokens := fmt.Sprintf("tokenbucket:%s:tokens", clientID)
 	keyTimestamp := fmt.Sprintf("tokenbucket:%s:timestamp", clientID)
