@@ -3,6 +3,8 @@ package main
 import "fmt"
 import "time"
 import "github.com/GowrisankarK/go-rate-limiter/algorithm"
+import "github.com/GowrisankarK/go-rate-limiter/distributedRateLimiting"
+import "github.com/redis/go-redis/v9"
 
 func validateFixedWindowRateLimiter() {
 	fixedWindow:=algorithm.InitialiseFixedWindow();
@@ -73,10 +75,42 @@ func validateLeakyBucketRateLimiter() {
 		time.Sleep(time.Duration(i) * time.Second);
 	}
 }
+
+func validateRedisTokenBucket() {
+	client := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+	defer client.Close()
+
+	tokenBucket := distributedRateLimiting.NewRedisTokenBucket(client, 5000*time.Millisecond, 1, 1)
+
+	clientID := "client123"
+	fmt.Printf("The RedisTokenBucket is initialised for %d refill tokens per %d seconds, max tokens = %d\n",
+		tokenBucket.ReFillTokenCount, tokenBucket.RefillRate/time.Second, tokenBucket.MaxCount)
+
+	for i := 1; i <= 20; i++ {
+		allowed, err := tokenBucket.IsRequestAllowed(clientID)
+		if err != nil {
+			fmt.Printf("Request %d failed with error: %v\n", i, err)
+			continue
+		}
+
+		if allowed {
+			fmt.Printf("Request %d is allowed\n", i)
+		} else {
+			fmt.Printf("Request %d is not allowed\n", i)
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+}
+
+
 func main() {
 	// validateFixedWindowRateLimiter();
 	// validateSlidingWindowLogRateLimiter();
-	validateSlidingWindowCounterRateLimiter();
+	// validateSlidingWindowCounterRateLimiter();
 	// validateTokenBucketRateLimiter();
 	// validateLeakyBucketRateLimiter();
+	validateRedisTokenBucket();
 }
