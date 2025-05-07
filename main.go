@@ -82,9 +82,11 @@ func validateRedisTokenBucket() {
 	})
 	defer client.Close()
 
-	tokenBucket := distributedRateLimiting.NewRedisTokenBucket(client, 5000*time.Millisecond, 1, 1)
+	tokenBucket := distributedRateLimiting.NewRedisTokenBucket(client, 5000*time.Millisecond, 10, 20)
 
-	clientID := "client123"
+	clientID := "b21295cb-5e59-4730-83b3-c39b57afd4a2"
+	tokenBucket.StartRefill(clientID);
+
 	fmt.Printf("The RedisTokenBucket is initialised for %d refill tokens per %d seconds, max tokens = %d\n",
 		tokenBucket.ReFillTokenCount, tokenBucket.RefillRate/time.Second, tokenBucket.MaxCount)
 
@@ -103,6 +105,7 @@ func validateRedisTokenBucket() {
 
 		time.Sleep(1 * time.Second)
 	}
+	tokenBucket.StopRefill(clientID);
 }
 
 
