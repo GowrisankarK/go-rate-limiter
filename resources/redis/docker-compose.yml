@@ -1,0 +1,16 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: rate-limit-redis
+    ports:
+      - "6379:6379"
+  
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-ui
+    environment:
+      - REDIS_HOSTS=local:rate-limit-redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
