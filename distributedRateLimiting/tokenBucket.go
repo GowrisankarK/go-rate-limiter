@@ -22,8 +22,8 @@ type RedisTokenBucket struct {
 
 var ctx = context.Background()
 
-func NewRedisTokenBucket(redisClient *redis.Client, refillRate time.Duration, refillCount int, maxCount int) *RedisTokenBucket {
-	return &RedisTokenBucket{
+func NewRedisTokenBucket(redisClient *redis.Client, refillRate time.Duration, refillCount int, maxCount int, clientId string) *RedisTokenBucket {
+	redisTokenBucket := &RedisTokenBucket{
 		RedisClient:      redisClient,
 		ReFillTokenCount: refillCount,
 		MaxCount:         maxCount,
@@ -31,6 +31,8 @@ func NewRedisTokenBucket(redisClient *redis.Client, refillRate time.Duration, re
 		tickers:          make(map[string]*time.Ticker),
 		stopChannels:     make(map[string]chan struct{}),
 	}
+	redisTokenBucket.StartRefill(clientId);
+	return redisTokenBucket;
 }
 
 // Start token refill for a specific clientID

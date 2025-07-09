@@ -82,16 +82,20 @@ func validateRedisTokenBucket() {
 	})
 	defer client.Close()
 
-	tokenBucket := distributedRateLimiting.NewRedisTokenBucket(client, 5000*time.Millisecond, 10, 20)
 
-	clientID := "b21295cb-5e59-4730-83b3-c39b57afd4a2"
-	tokenBucket.StartRefill(clientID);
+	clientID1 := "b21295cb-5e59-4730-83b3-c39b57afd4a2"
+	// tokenBucket.StartRefill(clientID1);
+	tokenBucket := distributedRateLimiting.NewRedisTokenBucket(client, 5000*time.Millisecond, 1, 1, clientID1)
+
+	clientID2 := "a21295cb-5e59-4730-83b3-c39b57afd4a2"
+	// tokenBucketForNewClient.StartRefill(clientID2);
+	tokenBucketForNewClient := distributedRateLimiting.NewRedisTokenBucket(client, 5000*time.Millisecond, 10, 10, clientID2)
 
 	fmt.Printf("The RedisTokenBucket is initialised for %d refill tokens per %d seconds, max tokens = %d\n",
 		tokenBucket.ReFillTokenCount, tokenBucket.RefillRate/time.Second, tokenBucket.MaxCount)
-
+    fmt.Printf("The client id %s\n", clientID1);
 	for i := 1; i <= 20; i++ {
-		allowed, err := tokenBucket.IsRequestAllowed(clientID)
+		allowed, err := tokenBucket.IsRequestAllowed(clientID1)
 		if err != nil {
 			fmt.Printf("Request %d failed with error: %v\n", i, err)
 			continue
@@ -100,12 +104,29 @@ func validateRedisTokenBucket() {
 		if allowed {
 			fmt.Printf("Request %d is allowed\n", i)
 		} else {
-			fmt.Printf("Request %d is not allowed\n", i)
+			fmt.Printf("Request %d is not allowed or 429\n", i)
 		}
 
 		time.Sleep(1 * time.Second)
 	}
-	tokenBucket.StopRefill(clientID);
+	fmt.Printf("The client id %s\n", clientID2);
+	for i := 1; i <= 20; i++ {
+		allowed, err := tokenBucketForNewClient.IsRequestAllowed(clientID2)
+		if err != nil {
+			fmt.Printf("Request %d failed with error: %v\n", i, err)
+			continue
+		}
+
+		if allowed {
+			fmt.Printf("Request %d is allowed\n", i)
+		} else {
+			fmt.Printf("Request %d is not allowed or 429\n", i)
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+	tokenBucket.StopRefill(clientID1);
+	tokenBucketForNewClient.StopRefill(clientID2);
 }
 
 
